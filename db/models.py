@@ -41,7 +41,9 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[int] = mapped_column(Integer, unique=True)
+    hour: Mapped[int] = mapped_column(Integer, default=7)
     is_paying: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_subscribed: Mapped[bool] = mapped_column(Boolean, default=False)
     
     zodiac_sign_id: Mapped[int] = mapped_column(ForeignKey('signs.id'))
     zodiac_sign: Mapped['Sign'] = relationship(back_populates='users')
@@ -60,3 +62,4 @@ async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         print('Finished DB init')
+        return 0

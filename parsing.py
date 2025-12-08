@@ -54,7 +54,6 @@ async def update_en_horoscopes():
     for sign in signs:
         res_en = await parse_en_horoscope('today', sign)
         en[sign] = res_en
-        time.sleep(0.1)
     with open('en.json', 'w', encoding='utf-8') as file_en:
         json.dump(en, file_en, ensure_ascii=False, indent=4)
 
@@ -64,13 +63,13 @@ async def update_ru_horoscopes():
     for sign in signs:
         res_ru = await parse_ru_horoscope(sign)
         ru[sign] = res_ru
-        time.sleep(0.1)
     with open('ru.json', 'w', encoding='utf-8') as file_ru:
         json.dump(ru, file_ru, ensure_ascii=False, indent=4)
     
 
 async def get_ru_horoscope(sign: str):
     with open('ru.json', 'r', encoding='utf-8') as file_ru:
+        print(sign)
         if file_ru:
             res = json.load(file_ru)[sign.lower()]
         else:
