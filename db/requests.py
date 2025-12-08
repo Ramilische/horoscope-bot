@@ -134,7 +134,7 @@ class UserRepository:
     @classmethod
     async def get_all_users_for_hour(cls, hour: int):
         async with async_session() as session:
-            users = await session.scalars(select(User).where(User.hour == hour))
+            users = await session.scalars(select(User).where(User.hour == hour and User.is_subscribed == True))
             return users
 
 
