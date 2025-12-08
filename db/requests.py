@@ -82,7 +82,15 @@ class UserRepository:
     async def get_subscription_status(cls, tg_id: int):
         user = await cls.get_user(tg_id=tg_id)
         return user.is_subscribed
-        
+    
+    @classmethod
+    async def update_time(cls, tg_id: int, hour: int):
+        async with async_session() as session:
+            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            if user:
+                user.hour = hour
+            await session.commit()
+            await session.refresh(user)
     
     @classmethod
     async def update_sign(cls, tg_id: int, sign: str):
@@ -90,7 +98,7 @@ class UserRepository:
         Меняет поле zodiac_sign на новое значение
         """
         async with async_session() as session:
-            user = await session.scalar(select(User).where(User.tg_id==tg_id))
+            user = await session.scalar(select(User).where(User.tg_id == tg_id))
             zodiac_sign = await SignRepository.get_sign(name=sign)
             if user and zodiac_sign and user.zodiac_sign_id == zodiac_sign.id:
                 return "No changes"
@@ -126,7 +134,7 @@ class UserRepository:
     @classmethod
     async def get_all_users_for_hour(cls, hour: int):
         async with async_session() as session:
-            users = await session.scalars(select(User).where(User.hour==hour))
+            users = await session.scalars(select(User).where(User.hour == hour))
             return users
 
 

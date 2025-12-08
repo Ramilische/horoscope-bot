@@ -15,7 +15,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from parsing import get_ru_horoscope, update_ru_horoscopes
 from db.requests import UserRepository, SignRepository
 from db.models import init_db
-from utils.collections import zodiac_en_to_ru
+from utils.collections import zodiac_en_to_ru, signs_en
+from utils.keyboards import to_time, hour_keyboard, zodiac_keyboard
 
 dotenv.load_dotenv('.env/creds.env')
 TOKEN = getenv("BOT_TOKEN")
@@ -76,54 +77,40 @@ async def get_today_horo(tg_id: int):
 
 @dp.message(Command('pick'))
 async def pick_a_sign(message: Message):
-    builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(text='Овен', callback_data='aries'), 
-        InlineKeyboardButton(text='Телец', callback_data='taurus'),
-        InlineKeyboardButton(text='Близнецы', callback_data='gemini'),
-    )
-    builder.row(
-        InlineKeyboardButton(text='Рак', callback_data='cancer'),
-        InlineKeyboardButton(text='Лев', callback_data='leo'), 
-        InlineKeyboardButton(text='Дева', callback_data='virgo'), 
-    )
-    builder.row(
-        InlineKeyboardButton(text='Весы', callback_data='libra'), 
-        InlineKeyboardButton(text='Скорпион', callback_data='scorpio'), 
-        InlineKeyboardButton(text='Стрелец', callback_data='sagittarius'), 
-    )
-    builder.row(
-        InlineKeyboardButton(text='Козерог', callback_data='capricorn'), 
-        InlineKeyboardButton(text='Водолей', callback_data='aquarius'), 
-        InlineKeyboardButton(text='Рыбы', callback_data='pisces')
-    )
     user = message.from_user
     if user:
         user_exists = await UserRepository.user_exists(tg_id=user.id)
         if not user_exists:
             await UserRepository.add_user(tg_id=user.id)
     
-        await message.answer('Выберите свой знак зодиака', reply_markup=builder.as_markup())
+        await message.answer('Выберите свой знак зодиака', reply_markup=zodiac_keyboard.as_markup())
 
 
-@dp.callback_query(F.data == 'aries')
-@dp.callback_query(F.data == 'taurus')
-@dp.callback_query(F.data == 'gemini')
-@dp.callback_query(F.data == 'cancer')
-@dp.callback_query(F.data == 'leo')
-@dp.callback_query(F.data == 'virgo')
-@dp.callback_query(F.data == 'libra')
-@dp.callback_query(F.data == 'scorpio' )
-@dp.callback_query(F.data == 'sagittarius')
-@dp.callback_query(F.data == 'capricorn')
-@dp.callback_query(F.data == 'aquarius')
-@dp.callback_query(F.data == 'pisces')
+@dp.callback_query(F.data.in_(signs_en))
 async def sign_callback(callback: CallbackQuery):
     user = callback.from_user
     if callback.message and callback.data and user:
         await UserRepository.update_sign(tg_id=user.id, sign=callback.data)
         await callback.message.answer(text=f'Теперь ваш знак - {zodiac_en_to_ru[callback.data]}')
     await callback.answer()
+
+
+@dp.message(Command('time'))
+async def pick_a_time(message: Message):
+    user = message.from_user
+    if user:
+        await message.answer(text='Выберите время по МСК для отправки ежедневного гороскопа', reply_markup=hour_keyboard.as_markup())
+
+
+@dp.callback_query(F.data.in_(['hour' + str(i) for i in range(24)]))
+async def time_callback(callback: CallbackQuery):
+    user = callback.from_user
+    if user:
+        hour = int(callback.data[-1]) if len(callback.data) == 5 else int(callback.data[-2:]) # type: ignore
+        await UserRepository.update_time(tg_id=user.id, hour=hour)
+        if callback.message:
+            await callback.message.answer(text=f'Теперь ежедневный гороскоп будет приходить в {to_time(hour=hour)} по МСК')
+        await callback.answer()
 
 
 @dp.message(Command(commands=['subscribe', 'daily', 'morning']))
