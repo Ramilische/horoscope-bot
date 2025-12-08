@@ -22,7 +22,8 @@ dotenv.load_dotenv('.env/creds.env')
 TOKEN = getenv("BOT_TOKEN")
 
 start_message = """Привет, я бот, отправляющий гороскопы
-Напиши /today чтобы получить гороскоп на сегодня"""
+Напиши /today чтобы получить гороскоп на сегодня
+Напиши /daily чтобы включить (или отключить) ежедневную отправку гороскопов"""
 
 if TOKEN is None:
     print('Файл с токеном не прочитался')
@@ -43,7 +44,7 @@ async def command_start_handler(message: Message) -> None:
     if message.chat.is_direct_messages:
         # Рекламировать свою подписку в групповом чате неприлично, поэтому логика такая
         just_payment = InlineKeyboardBuilder()
-        just_payment.row(InlineKeyboardButton(text='💳 Утренний гороскоп всего за 100 рублей в месяц', callback_data='pay'))
+        just_payment.row(InlineKeyboardButton(text='💳 Какая-нибудь функция скоро будет за пэйволлом', callback_data='pay'))
         await message.answer(start_message, reply_markup=just_payment.as_markup())
     else:
         await message.answer(start_message)
@@ -52,7 +53,7 @@ async def command_start_handler(message: Message) -> None:
 @dp.callback_query(F.data == 'pay')
 async def pay(callback: CallbackQuery):
     if callback.message:
-        await callback.message.answer(text='Здесь должна быть оплата')
+        await callback.message.answer(text='Мне, конечно, приятно, но ЮКассу я еще не подключил, подожди немного')
     await callback.answer()
 
 
