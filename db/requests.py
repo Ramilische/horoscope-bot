@@ -19,7 +19,7 @@ class UserRepository:
     @classmethod
     async def get_user(cls, tg_id: int) -> User:
         async with async_session() as session:
-            if not cls.user_exists(tg_id=tg_id):
+            if not await cls.user_exists(tg_id=tg_id):
                 await cls.add_user(tg_id=tg_id)
             user = await session.scalar(select(User).where(User.tg_id == tg_id))
             return user # type: ignore
@@ -50,12 +50,12 @@ class UserRepository:
         Функция используется при продлении подписки или при окончании ее срока действия
         """
         async with async_session() as session:
-            user = await cls.get_user(tg_id=tg_id)
-            if user.is_paying == is_paying:
+            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            if user and user.is_paying == is_paying:
                 return "No changes"
-            
-            user.is_paying = is_paying
-            res = await session.scalar(update(User).where(User.tg_id == tg_id).values(is_paying=is_paying))
+            elif user:
+                user.is_paying = is_paying
+
             await session.commit()
             await session.refresh(user)
     
@@ -67,14 +67,15 @@ class UserRepository:
     @classmethod
     async def update_subscription_status(cls, tg_id: int, is_subscribed: bool):
         async with async_session() as session:
-            user = await cls.get_user(tg_id=tg_id)
-            if user.is_subscribed == is_subscribed:
+            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            if user and user.is_subscribed == is_subscribed:
+                print('No changes')
                 return "No changes"
             # if not user.is_paying:
             #     return "User is not paying"
 
-            user.is_subscribed = is_subscribed
-            res = await session.scalar(update(User).where(User.tg_id == tg_id).values(is_subscribed=is_subscribed))
+            if user:
+                user.is_subscribed = is_subscribed
             await session.commit()
             await session.refresh(user)
     

@@ -54,6 +54,7 @@ async def command_start_handler(message: Message) -> None:
 async def pay(callback: CallbackQuery):
     if callback.message:
         await callback.message.answer(text='Мне, конечно, приятно, но ЮКассу я еще не подключил, подожди немного')
+        
     await callback.answer()
 
 
@@ -119,7 +120,7 @@ async def daily_switch(message: Message):
     user = message.from_user
     if user:
         # is_paying = UserRepository.get_paying_status(tg_id=user.id)
-        is_subscribed = UserRepository.get_subscription_status(tg_id=user.id)
+        is_subscribed = await UserRepository.get_subscription_status(tg_id=user.id)
         builder = InlineKeyboardBuilder()
         
         if is_subscribed:
