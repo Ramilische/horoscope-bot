@@ -147,7 +147,8 @@ async def daily_horo_send():
     hour = time.localtime(time.time()).tm_hour
     users = await UserRepository.get_all_users_for_hour(hour=hour)
     for user in users:
-        await bot.send_message(chat_id=user.tg_id, text=await get_today_horo(user.tg_id))
+        if user.is_subscribed:
+            await bot.send_message(chat_id=user.tg_id, text=await get_today_horo(user.tg_id))
 
 
 # Run the bot
