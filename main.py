@@ -155,7 +155,7 @@ async def daily_horo_send():
 async def main() -> None:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(update_ru_horoscopes, 'interval', hours=1, id='update_horoscopes')
-    scheduler.add_job(daily_horo_send, 'cron', hour='0-23', minute=32)
+    scheduler.add_job(daily_horo_send, 'cron', hour='0-23', minute=0)
     scheduler.start()
 
     await init_db()
