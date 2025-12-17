@@ -4,7 +4,8 @@ from sqlalchemy import select, update, delete, func
 from pydantic import BaseModel, ConfigDict
 from typing import List
 
-from db.models import async_session, User, Sign
+from db.session import async_session
+from db.models import User, Sign
 
 
 class UserRepository:
@@ -69,7 +70,6 @@ class UserRepository:
         async with async_session() as session:
             user = await session.scalar(select(User).where(User.tg_id == tg_id))
             if user and user.is_subscribed == is_subscribed:
-                print('No changes')
                 return "No changes"
             # if not user.is_paying:
             #     return "User is not paying"

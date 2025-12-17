@@ -14,7 +14,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from parsing import get_ru_horoscope, update_ru_horoscopes
 from db.requests import UserRepository, SignRepository
-from db.models import init_db
+from db.session import init_db
 from utils.collections import zodiac_en_to_ru, signs_en
 from utils.keyboards import to_time, hour_keyboard, zodiac_keyboard
 
