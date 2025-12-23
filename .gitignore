@@ -10,6 +10,7 @@ wheels/
 .venv
 
 # User
-.env
+creds.env
+db.env
 test.py
 ru.json

@@ -14,7 +14,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from parsing import get_ru_horoscope, update_ru_horoscopes
 from db.requests import UserRepository, SignRepository
-from db.session import init_db
+from db.session import init_db, IS_TEST
 from utils.collections import zodiac_en_to_ru, signs_en
 from utils.keyboards import to_time, hour_keyboard, zodiac_keyboard
 
@@ -41,7 +41,7 @@ async def command_start_handler(message: Message) -> None:
         if not await UserRepository.user_exists(tg_id=user.id):
             await pick_a_sign(message)
             
-    if message.chat.is_direct_messages:
+    if message.chat.type == 'private':
         # Рекламировать свою подписку в групповом чате неприлично, поэтому логика такая
         just_payment = InlineKeyboardBuilder()
         just_payment.row(InlineKeyboardButton(text='💳 Какая-нибудь функция скоро будет за пэйволлом', callback_data='pay'))
