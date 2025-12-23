@@ -13,6 +13,9 @@ BASE_URL = pathlib.Path(__file__).parent.parent
 dotenv.load_dotenv('.env/config.env')
 IS_TEST = getenv('IS_TEST')
 
+if IS_TEST is not None:
+    IS_TEST = IS_TEST == 'True'
+
 
 class Settings(BaseSettings):
     DB_USER: str
@@ -29,7 +32,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_URL.joinpath('.env/db.env'))
 
     def get_db_url_pg(self):
-        if IS_TEST == 'True':
+        if IS_TEST:
             return f"postgresql+asyncpg://{self.TEST_USER}:{self.TEST_PASSWORD}@{self.TEST_HOST}:{self.TEST_PORT}/{self.TEST_NAME}"
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         
