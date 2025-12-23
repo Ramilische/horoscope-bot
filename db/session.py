@@ -11,7 +11,7 @@ from db.models import Base
 
 BASE_URL = pathlib.Path(__file__).parent.parent
 dotenv.load_dotenv('.env/config.env')
-IS_TEST = getenv('IS_TEST')
+IS_TEST = bool(getenv('IS_TEST'))
 print(IS_TEST)
 
 
