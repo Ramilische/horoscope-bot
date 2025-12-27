@@ -14,3 +14,4 @@ creds.env
 db.env
 test.py
 ru.json
+logs/

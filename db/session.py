@@ -35,8 +35,6 @@ class Settings(BaseSettings):
         if IS_TEST:
             return f"postgresql+asyncpg://{self.TEST_USER}:{self.TEST_PASSWORD}@{self.TEST_HOST}:{self.TEST_PORT}/{self.TEST_NAME}"
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        
-
 
 
 settings = Settings() # type: ignore

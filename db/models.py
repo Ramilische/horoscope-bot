@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import ForeignKey, String, Integer, ARRAY, Boolean, Text, DateTime
+from sqlalchemy import ForeignKey, String, Boolean, BigInteger, SmallInteger
 from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
@@ -12,8 +12,8 @@ class User(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    tg_id: Mapped[int] = mapped_column(Integer, unique=True)
-    hour: Mapped[int] = mapped_column(Integer, default=7)
+    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    hour: Mapped[int] = mapped_column(SmallInteger, default=7)
     is_paying: Mapped[bool] = mapped_column(Boolean, default=False)
     is_subscribed: Mapped[bool] = mapped_column(Boolean, default=False)
     

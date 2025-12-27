@@ -17,9 +17,11 @@ from db.requests import UserRepository, SignRepository
 from db.session import init_db, IS_TEST
 from utils.collections import zodiac_en_to_ru, signs_en
 from utils.keyboards import to_time, hour_keyboard, zodiac_keyboard
+from utils.basiclogging import log_message
 
 dotenv.load_dotenv('.env/creds.env')
-TOKEN = getenv("BOT_TOKEN")
+TOKEN = getenv('BOT_TOKEN')
+ADMIN_ID = getenv('ADMIN_ID')
 
 start_message = """Привет, я бот, отправляющий гороскопы
 Напиши /today чтобы получить гороскоп на сегодня
@@ -154,6 +156,19 @@ async def daily_horo_send():
             await bot.send_message(chat_id=user.tg_id, text=await get_today_horo(user.tg_id))
 
 
+@dp.message(Command(commands=['massmessage', 'rassylka']))
+async def make_a_mass_message(message: Message):
+    user = message.from_user
+    if user and user.id == ADMIN_ID:
+        await message.answer('Введите сообщение, которое нужно разослать')
+
+
+async def mass_message(text: str):
+    users = await UserRepository.get_all_users()
+    for user in users:
+        await bot.send_message(chat_id=user.tg_id, text=text)
+
+
 # Run the bot
 async def main() -> None:
     scheduler = AsyncIOScheduler()
@@ -167,4 +182,3 @@ async def main() -> None:
 
 if __name__ == '__main__':
     asyncio.run(main())
-          
