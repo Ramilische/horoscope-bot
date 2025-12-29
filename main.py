@@ -7,9 +7,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, User
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.methods import send_message
 import dotenv
-import apscheduler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from parsing import get_ru_horoscope, update_ru_horoscopes
@@ -41,6 +39,8 @@ bot = Bot(token=str(TOKEN))
 # Command handler
 @dp.message(Command('start'))
 async def command_start_handler(message: Message) -> None:
+    log_message(message=message)
+    
     user = message.from_user
     if user:
         if not await UserRepository.user_exists(tg_id=user.id):
@@ -65,6 +65,8 @@ async def pay(callback: CallbackQuery):
 
 @dp.message(Command('today'))
 async def today(message: Message) -> None:
+    log_message(message=message)
+    
     user = message.from_user
     if user:
         user_exists = await UserRepository.user_exists(tg_id=user.id)
@@ -84,6 +86,8 @@ async def get_today_horo(tg_id: int):
 
 @dp.message(Command('pick'))
 async def pick_a_sign(message: Message):
+    log_message(message=message)
+    
     user = message.from_user
     if user:
         user_exists = await UserRepository.user_exists(tg_id=user.id)
@@ -104,6 +108,8 @@ async def sign_callback(callback: CallbackQuery):
 
 @dp.message(Command('time'))
 async def pick_a_time(message: Message):
+    log_message(message=message)
+    
     user = message.from_user
     if user:
         await message.answer(text='Выберите время по МСК для отправки ежедневного гороскопа', reply_markup=hour_keyboard.as_markup())
@@ -122,6 +128,8 @@ async def time_callback(callback: CallbackQuery):
 
 @dp.message(Command(commands=['subscribe', 'daily', 'morning']))
 async def daily_switch(message: Message):
+    log_message(message=message)
+    
     user = message.from_user
     if user:
         # is_paying = UserRepository.get_paying_status(tg_id=user.id)
@@ -158,8 +166,10 @@ async def daily_horo_send():
 
 @dp.message(Command(commands=['massmessage', 'rassylka']))
 async def make_a_mass_message(message: Message):
+    log_message(message=message)
+    
     user = message.from_user
-    if user and user.id == ADMIN_ID:
+    if user and str(user.id) == ADMIN_ID:
         await message.answer('Введите сообщение, которое нужно разослать')
 
 
@@ -167,6 +177,13 @@ async def mass_message(text: str):
     users = await UserRepository.get_all_users()
     for user in users:
         await bot.send_message(chat_id=user.tg_id, text=text)
+
+
+@dp.message()
+async def everything_else(message: Message):
+    log_message(message=message)
+    
+    await message.answer('Моя твоя не понимать')
 
 
 # Run the bot
@@ -177,6 +194,9 @@ async def main() -> None:
     scheduler.start()
 
     await init_db()
+    if IS_TEST:
+        print('************************\nРаботаю в тестовом режиме\n************************')
+    await update_ru_horoscopes()
     await dp.start_polling(bot)
 
 
