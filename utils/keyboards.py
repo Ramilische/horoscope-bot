@@ -8,7 +8,12 @@ def to_time(hour: int):
     return f'{hour}:00'
 
 
+just_payment = InlineKeyboardBuilder()
 zodiac_keyboard = InlineKeyboardBuilder()
+hour_keyboard = InlineKeyboardBuilder()
+
+just_payment.row(InlineKeyboardButton(text='💳 Какая-нибудь функция скоро будет за пэйволлом', callback_data='pay'))
+
 zodiac_keyboard.row(
     InlineKeyboardButton(text='Овен', callback_data='aries'), 
     InlineKeyboardButton(text='Телец', callback_data='taurus'),
